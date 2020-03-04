@@ -1,0 +1,64 @@
+---
+title: "hw4"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(datasets)
+library(dplyr)
+library(ggplot2)
+
+```
+
+## Q1
+```{r}
+weight0 <- ChickWeight %>%
+  group_by(Diet) %>%
+  summarize(avg = mean(weight), sd= sd(weight))
+  
+print(weight0)
+```
+
+## Q2
+```{r}
+complete <- ChickWeight %>%
+  group_by(Chick) %>%
+  mutate(num_measurements=n()) %>%
+  filter(num_measurements >= 12)
+
+print(head(complete,3))
+```
+
+## Q3
+```{r}
+complete <- complete %>% 
+  mutate(weightgain = weight - weight[Time == 0.0])
+
+print(head(complete, 3))
+```
+
+## Q4
+```{r}
+diets <- complete %>% filter(Time == 21)
+plot <- ggplot(diets, aes(x=reorder(Diet, weightgain, FUN = median), y=weightgain)) + geom_boxplot()
+plot <- plot + expand_limits(y=0)
+print(plot) 
+```
+
+The weight gain varied heavily between the 4 different diets. The diet which resulted in the most weight gain was diet 3, with a median weight gain of almost 250. Diet 4 had a median of almost 200, diet 2 175, and diet 1 125. However, diet 4 looks to be a bit more consistent, with no chicks having a weight gain less than 150. With diet 3, the median was higher, but there is a wide range and some chicks almost had a weight gain as low as 100. 
+
+## Q5
+```{r}
+arranged <- diets %>% arrange(weightgain)
+print(tail(arranged, 1)) ## most gained
+print(head(arranged, 1)) ## least gained
+
+plot <- diets %>%
+  ggplot(aes(x = Chick, y = weightgain, shape = Diet, color = Diet)) + geom_point()
+
+print(plot)
+```
+
+Chick 35 gained the most, and was on diet 3. Chick 24 gained the least and was on diet 2. 
+
+## Q6
